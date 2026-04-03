@@ -1,0 +1,6 @@
+# Dirs
+build/
+libs/
+
+# Editor
+.clangd
