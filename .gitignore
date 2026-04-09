@@ -4,3 +4,6 @@ libs/
 
 # Editor
 .clangd
+
+# Hidden files
+*.tmp

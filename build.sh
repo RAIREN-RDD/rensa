@@ -10,8 +10,6 @@ BUILD_DIR="$YAML_CPP_DIR/build"
 TARGET="$BUILD_DIR/libyaml-cpp.a"
 TAG="yaml-cpp-0.9.0"
 
-
-
 if [ ! -f "$TARGET" ]; then
     git submodule update --init --recursive
     cd "$YAML_CPP_DIR"
@@ -28,4 +26,4 @@ if [ ! -f "$TARGET" ]; then
 fi
 
 cd "$PROJECT_DIR"
-make -j$(nproc)
+LC_ALL=C make -j$(nproc)
