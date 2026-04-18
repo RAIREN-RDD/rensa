@@ -1,46 +1,32 @@
-#pragma once
+#ifndef RAIREN_RENSA_CORE_HPP
+#define RAIREN_RENSA_CORE_HPP
+
+#include "rensa/types.hpp"
 
 #include <functional>
-#include <span>
-#include <variant>
 
-#include "rensa/utils.hpp"
+namespace rairen::rensa {
 
-namespace rensa {
+enum class SystemStatus : i32 { Success = 0, Error = 1, UnknownCommand = -1 };
 
-class Cli;
+struct Orchestrator;
+using Args = std::span<const String>;
 
-struct Flag {
-  StringView key;
-  std::variant<StringView, std::initializer_list<String>> value;
-};
-
-struct PrimitiveArgument {
-  StringView name;
-};
-
-using Argument = std::variant<PrimitiveArgument, Flag>;
-using Arguments = Vector<Argument>;
+using RensaFunction = std::function<SystemStatus(Orchestrator *, Args)>;
 
 struct Command {
-  StringView name;
-  std::move_only_function<i32(Cli *, std::span<Argument>)> exec;
-  String description = "no description";
-  String help = "no help";
+  String help;
+  RensaFunction execute;
 };
 
-using Commands = Vector<Command>;
+struct Orchestrator {
+  Map<String, Command> commands;
 
-class Cli {
-private:
-  Commands commands;
+  Orchestrator();
 
-public:
-  Cli();
-
-  i32 dispatch(StringView command_name, std::span<Argument> args);
-
-  std::span<Command> get_commands() { return this->commands; }
+  SystemStatus dispatch(const Vector<String> &commands);
 };
 
-} // namespace rensa
+} // namespace rairen::rensa
+
+#endif

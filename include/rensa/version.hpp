@@ -1,6 +1,7 @@
-#pragma once
+#ifndef RAIREN_RENSA_VERSION_HPP
+#define RAIREN_RENSA_VERSION_HPP
 
-namespace rensa {
+namespace rairen::rensa {
 
 constexpr int RENSA_VERSION_MAJOR = 1;
 constexpr int RENSA_VERSION_MINOR = 0;
@@ -10,4 +11,6 @@ constexpr int RENSA_VERSION_PATCH = 0;
 constexpr const char *RENSA_COMMIT_HASH = "defined by VCS";
 #endif
 
-} // namespace rensa
+} // namespace rairen::rensa
+
+#endif
