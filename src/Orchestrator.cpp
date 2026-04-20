@@ -1,12 +1,35 @@
+#include "rensa/commands.hpp"
 #include "rensa/core.hpp"
 #include "rensa/log.hpp"
 #include "rensa/version.hpp"
 
+#include <filesystem>
 #include <print>
+
+#ifdef __linux__
+#include <limits.h>
+#include <unistd.h>
+#else
+#error "Unsupported platform"
+#endif
 
 namespace rairen::rensa {
 
 Orchestrator::Orchestrator() {
+#ifdef __linux__
+  char buf[PATH_MAX];
+  ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+
+  if (len == -1) {
+    log(LogLevel::Error, "Failed to read process path");
+    std::exit(-2);
+  }
+
+  buf[len] = '\0';
+  proc_path = Path(buf).parent_path();
+  templates_path = proc_path / "templates";
+#endif
+
   commands.emplace(
       "version", Command{"Prints Rensa version and commit",
                          [this](Orchestrator *, Args) -> SystemStatus {
@@ -16,6 +39,9 @@ Orchestrator::Orchestrator() {
                                         RENSA_VERSION_PATCH, RENSA_COMMIT_HASH);
                            return SystemStatus::Success;
                          }});
+
+  commands.emplace("create",
+                   Command{"Create a Rensa project from a template", create});
 }
 
 SystemStatus Orchestrator::dispatch(const Vector<String> &commands) {

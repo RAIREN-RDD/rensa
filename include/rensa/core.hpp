@@ -21,10 +21,14 @@ struct Command {
 
 struct Orchestrator {
   Map<String, Command> commands;
+  
+  Path proc_path;
+  Path templates_path;
 
   Orchestrator();
 
   SystemStatus dispatch(const Vector<String> &commands);
+
 };
 
 } // namespace rairen::rensa

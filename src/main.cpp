@@ -1,6 +1,7 @@
 #include "rensa/core.hpp"
 #include "rensa/log.hpp"
 #include "rensa/types.hpp"
+
 #include <print>
 
 using namespace rairen::rensa;
