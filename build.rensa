@@ -4,11 +4,11 @@ TARGET ${PROJECT_NAME}
   VARS
     CXX = gcc
     CXX_FLAGS = -std=c++23 -Iinclude
-    SOURCES LIST_FILES(src)
-    INCLUDES LIST_FILES(include)
+    SOURCES = LIST_FILES(src)
+    INCLUDES = LIST_FILES(include)
 
   END
 
-  WATCH LIST_FILES(${SOURCES} ${INCLUDES}) 
-  BUILDER rensa-cpp # this uses a default builder. changes are triggered by WATCH
+  DEPENDS_ON LIST_FILES(${SOURCES} ${INCLUDES}) 
+  BUILDER rensa-cpp # this uses a default builder. changes are triggered by DEPENDS_ON
 END

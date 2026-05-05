@@ -22,8 +22,12 @@ struct Command {
 struct Orchestrator {
   Map<String, Command> commands;
   
+  Path current_dir;
   Path proc_path;
   Path templates_path;
+  
+  Path rensa_dir;
+  Path rensa_cache_path;
 
   Orchestrator();
 

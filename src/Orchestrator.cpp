@@ -30,6 +30,10 @@ Orchestrator::Orchestrator() {
   templates_path = proc_path / "templates";
 #endif
 
+  this->current_dir = fs::current_path();
+  this->rensa_dir = this->current_dir / ".rensa";
+  this->rensa_cache_path = this->rensa_dir / "cache";
+
   commands.emplace(
       "version", Command{"Prints Rensa version and commit",
                          [this](Orchestrator *, Args) -> SystemStatus {
@@ -42,6 +46,9 @@ Orchestrator::Orchestrator() {
 
   commands.emplace("create",
                    Command{"Create a Rensa project from a template", create});
+
+                   commands.emplace("build", Command{"Build project", build});
+  commands.emplace("build-cpp", Command{"Build cpp project", build_cpp});
 }
 
 SystemStatus Orchestrator::dispatch(const Vector<String> &commands) {

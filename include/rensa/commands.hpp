@@ -8,6 +8,9 @@ namespace rairen::rensa {
   SystemStatus name(Orchestrator *orchestrator, Args args)
 
 RENSA_COMMAND(create);
+RENSA_COMMAND(build);
+
+RENSA_COMMAND(build_cpp);
 
 } // namespace rairen::rensa
 

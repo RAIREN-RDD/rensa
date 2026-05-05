@@ -1,5 +1,5 @@
 PROJECT_NAME = rensa
-CXX := g++
+CXX := ccache g++
 
 CXX_STD      := -std=c++23
 CXX_WARN     := -Wall -Wextra
@@ -19,7 +19,7 @@ CXX_FLAGS    := $(CXX_STD) $(CXX_WARN) $(CXX_ARCH) \
                 $(CXX_INCLUDES) \
                 $(CXX_DEFINES)
 
-LD_FLAGS  := -static libs/libyaml-cpp.a libs/liblzma.a libs/libarchive.a
+LD_FLAGS := libs/libyaml-cpp.a libs/liblzma.a libs/libarchive.a -lcrypto -lssl -fuse-ld=lld
 
 SRC_DIR    := src
 BUILD_DIR  := build
@@ -50,15 +50,17 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 $(BUILD_DIR):
 	mkdir -p $@
 
-INSTALL_DIR = ${HOME}/.apps/rairen/${PROJECT_NAME}
-INSTALL_TARGET = $(INSTALL_DIR)/entry
+PREFIX ?= $(HOME)
+INSTALL_DIR = $(PREFIX)/.apps/rairen/$(PROJECT_NAME)
+BIN_DIR = $(PREFIX)/.local/bin
 
 install: release
 	mkdir -p $(INSTALL_DIR)
+	mkdir -p $(BIN_DIR)
+	cp $(TARGET) $(INSTALL_DIR)/entry
+	chmod +x $(INSTALL_DIR)/entry
+	ln -sfn $(INSTALL_DIR)/entry $(BIN_DIR)/rensa
 	bash install.sh
-	cp $(TARGET) $(INSTALL_TARGET)
-	chmod +x $(INSTALL_TARGET)
-	ln -sfn $(INSTALL_TARGET) /usr/local/bin/rensa
 
 clean:
 	rm -rf $(BUILD_DIR)
