@@ -19,21 +19,5 @@ git diff --cached --quiet && {
 
 git commit -m "$msg"
 
-git push codeberg HEAD &
-pid1=$!
-
-git push github HEAD &
-pid2=$!
-
-wait $pid1
-status1=$?
-
-wait $pid2
-status2=$?
-
-if [[ $status1 -ne 0 || $status2 -ne 0 ]]; then
-  echo "One or more pushes failed" >&2
-  exit 1
-fi
-
-echo "Successfully pushed to both remotes"
+git push github HEAD
+git push codeberg HEAD
