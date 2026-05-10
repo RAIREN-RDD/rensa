@@ -68,3 +68,5 @@ fi
 cp "$LIBARCHIVE_LIB" "$LIB_DIR/"
 
 cd "$PROJECT_DIR"
+
+make -j$(nproc)

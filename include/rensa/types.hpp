@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 namespace rairen::rensa {
@@ -20,7 +20,7 @@ using String = std::string;
 using StringView = std::string_view;
 
 template <typename _T> using Vector = std::vector<_T>;
-template <typename _K, typename _V> using Map = std::unordered_map<_K, _V>;
+template <typename _K, typename _V> using Map = std::map<_K, _V>;
 
 namespace fs = std::filesystem;
 using Path = fs::path;

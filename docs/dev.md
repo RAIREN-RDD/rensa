@@ -3,7 +3,7 @@ Let `CWD` be the Current Working Directory.
 Let `PROJECT_ROOT` be the project's absolute location.  
 Let `RENSA_ROOT` be Rensa install directory absolute location.  
 
-Every template's extension is `.ra`  
+Every template's extension is `.rsmk`  
 For now, assume it's always `.tar.xz`. In the future, `.tar.zstd` and other algos will be supported.
 
 
