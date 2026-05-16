@@ -1,4 +1,4 @@
-PROJECT_NAME = rensa
+PROJECT_NAME = entry
 CXX := ccache g++
 
 CXX_STD      := -std=c++23

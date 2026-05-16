@@ -37,7 +37,7 @@ Orchestrator::Orchestrator() {
   commands.emplace(
       "version", Command{"Prints Rensa version and commit",
                          [this](Orchestrator *, Args) -> SystemStatus {
-                           std::println("rensa {}.{}.{} ({})",
+                           std::println("rensa {}.{}.{} commit {}",
                                         RENSA_VERSION_MAJOR,
                                         RENSA_VERSION_MINOR,
                                         RENSA_VERSION_PATCH, RENSA_COMMIT_HASH);

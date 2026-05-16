@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e
 
 mkdir -p ~/.apps/rairen/rensa/templates/

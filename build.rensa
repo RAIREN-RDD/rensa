@@ -1,14 +1,21 @@
 PROJECT_NAME rensa
+PROJECT_VERSION 1.0.0
 
 TARGET ${PROJECT_NAME}
   VARS
-    CXX = gcc
-    CXX_FLAGS = -std=c++23 -Iinclude
-    SOURCES = LIST_FILES(src)
-    INCLUDES = LIST_FILES(include)
+    CXX = /usr/bin/g++
+    CXX_INCLUDES = -Iinclude
+    CXX_FLAGS = -std=c++23 -Wall -Wextra ${CXX_INCLUDES}
+    CXX_LD_FLAGS = 
 
+    SRC_DIR = src/
+    INCLUDE_DIR = 
   END
 
-  DEPENDS_ON LIST_FILES(${SOURCES} ${INCLUDES}) 
-  BUILDER rensa-cpp # this uses a default builder. changes are triggered by DEPENDS_ON
+  DEPENDENCIES
+    FILES_RECURSIVE_IN ${SRC_DIR} cpp
+    FILES_RECURSIVE_IN ${INCLUDE_DIR} hpp 
+  END
+
+  USE_BUILDER rensa-cpp
 END

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -e
 
 PROJECT_DIR="$(pwd)"
@@ -21,17 +21,15 @@ mkdir -p "$LIB_DIR"
 git submodule update --init --recursive
 
 # -----------------------
-# yaml-cpp
-# -----------------------
 if [ ! -f "$YAML_CPP_LIB" ]; then
     cmake -S "$YAML_CPP_DIR" -B "$YAML_CPP_BUILD"
     cmake --build "$YAML_CPP_BUILD" --parallel "$(nproc)"
 fi
 
 cp "$YAML_CPP_LIB" "$LIB_DIR/"
-
 # -----------------------
-# xz / liblzma
+
+
 # -----------------------
 if [ ! -f "$LZMA_LIB" ]; then
     cmake -S "$LZMA_DIR" -B "$LZMA_BUILD" \
@@ -45,9 +43,9 @@ if [ ! -f "$LZMA_LIB" ]; then
 fi
 
 cp "$LZMA_LIB" "$LIB_DIR/"
-
 # -----------------------
-# libarchive
+
+
 # -----------------------
 if [ ! -f "$LIBARCHIVE_LIB" ]; then
     cmake -S "$LIBARCHIVE_DIR" -B "$LIBARCHIVE_BUILD" \
@@ -68,5 +66,6 @@ fi
 cp "$LIBARCHIVE_LIB" "$LIB_DIR/"
 
 cd "$PROJECT_DIR"
+# -----------------------
 
-make -j$(nproc)
+make -j$(( $(nproc) - 2 ))
