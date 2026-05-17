@@ -5,12 +5,11 @@
 
 namespace rairen::rensa {
 #define RENSA_COMMAND(name)                                                    \
-  SystemStatus name(Orchestrator *orchestrator, Args args)
+  SystemStatus rensa_##name(Orchestrator *orchestrator, Args args)
 
 RENSA_COMMAND(create);
 RENSA_COMMAND(build);
-
-RENSA_COMMAND(build_cpp);
+RENSA_COMMAND(version);
 
 } // namespace rairen::rensa
 

@@ -7,6 +7,7 @@
 #include <print>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 
 namespace rairen::rensa {
 
@@ -29,6 +30,30 @@ static Path find_build_file(Path start) {
 
   return {};
 }
+
+enum class TokenType {
+  Identifier,
+  Keyword,
+  StringLiteral,
+
+  Operator,
+  BlockStart, // TARGET, VARS, DEPENDENCIES
+  BlockEnd,   // END
+
+  VariableRef, // ${PROJECT_NAME}
+
+  EndOfFile,
+  NewLine
+};
+class Token {
+public:
+  TokenType type;
+  std::string value;
+  u64 line_number;
+
+  Token(TokenType _type, std::string _value, u64 _line_number)
+      : type(_type), value(std::move(_value)), line_number(_line_number) {}
+};
 
 RENSA_COMMAND(build) {
   Path start_dir = ".";
@@ -65,23 +90,20 @@ RENSA_COMMAND(build) {
 
   std::ifstream f(build_file);
 
-  using TargetName = String;
-  using VarName = String;
-
-  StringView project_name = "";
-  StringView project_version = "";
-  Map<VarName, String> global_vars;
-  Map<TargetName, Map<VarName, String>> targets_vars;
-  Vector<String> targets;
-
   String line;
-  Vector<String> tokens;
 
   Statuses statuses;
   usize line_number = 0;
 
-  Vector<String> known_directives = {
-      "PROJECT_NAME", "PROJECT_VERSION", "VARS", "DEPENDS_ON", "END", "TARGET"};
+  UnorderedSet<String> keywords = {"PROJECT_NAME", "PROJECT_VERSION"};
+  UnorderedSet<String> block_starts = {"TARGET", "VARS", "DEPENDENCIES"};
+
+  UnorderedSet<String> operators = {"=", "+=", "?="};
+
+  Vector<Token> tokens;
+  String token;
+
+  bool inside_var = false;
 
   while (std::getline(f, line)) {
     line_number++;
@@ -90,103 +112,64 @@ RENSA_COMMAND(build) {
       continue;
 
     std::stringstream iss(line);
-
-    tokens.clear();
-    String token;
-
     while (iss >> token) {
-      tokens.push_back(token);
-    }
+      if (token == "//")
+        break;
 
-    StringView directive = tokens[0];
-
-    if (statuses.inside_var) {
-      if (directive == "END") {
-        statuses.inside_var = false;
+      bool is_keyword = keywords.contains(token);
+      if (is_keyword) {
+        tokens.push_back(Token(TokenType::Keyword, token, line_number));
         continue;
       }
 
-      
-      if (!statuses.inside_target) {
-        std::println("GLOBAL {}", directive);
-        global_vars[String(directive)] = "";
-      } else {
-        std::println("LOCAL {}", directive);
-        targets_vars[targets.back()][String(directive)] = "";
-      }
-
-      continue;
-    }
-
-    if (statuses.inside_target) {
-      if (directive == "END") {
-        statuses.inside_target = false;
+      bool is_block = block_starts.contains(token);
+      if (is_block) {
+        tokens.push_back(Token(TokenType::BlockStart, token, line_number));
+        if (token == "VARS") {
+          inside_var = true;
+        }
         continue;
       }
+
+      bool is_operator = operators.contains(token);
+      if (is_operator) {
+        tokens.push_back(Token(TokenType::Operator, token, line_number));
+        continue;
+      }
+
+      if (inside_var) {
+        tokens.push_back(Token(TokenType::Identifier, token, line_number));
+        continue;
+      }
+
+      if (token == "END") {
+        tokens.push_back(Token(TokenType::BlockEnd, "", line_number));
+        inside_var = false;
+        continue;
+      }
+
+      StringView token_view(token);
+      if (token_view.starts_with("RS{")) {
+        if (!token_view.ends_with("}")) {
+          rensa::log(LogLevel::Error,
+                     "RS expression at line {} not closed - '}}' missing",
+                     line_number);
+          return SystemStatus::Error;
+        }
+
+        tokens.push_back(Token(
+            TokenType::VariableRef,
+            String(token_view.substr(3, token_view.size() - 4)), line_number));
+
+        continue;
+      }
+
+      tokens.push_back(Token(TokenType::StringLiteral, token, line_number));
     }
+  }
 
-    if (std::find(known_directives.begin(), known_directives.end(),
-                  String(directive)) == known_directives.end()) {
-      log(LogLevel::Error, "Unknown directive {} on line {}", directive,
-          line_number);
-      return SystemStatus::Error;
-    }
-
-    if (directive == "PROJECT_NAME") {
-      if (tokens.size() < 2) {
-        log(LogLevel::Error, "Project name missing on line {}", line_number);
-        return SystemStatus::Error;
-      }
-
-      if (tokens.size() > 2) {
-        log(LogLevel::Error, "Too many arguments for directive {} on line {}",
-            directive, line_number);
-        return SystemStatus::Error;
-      }
-
-      global_vars["PROJECT_NAME"] = tokens[1];
-    }
-
-    if (directive == "PROJECT_VERSION") {
-      if (tokens.size() < 2) {
-        log(LogLevel::Error, "Project version missing on line {}", line_number);
-        return SystemStatus::Error;
-      }
-
-      if (tokens.size() > 2) {
-        log(LogLevel::Error, "Too many arguments for directive {} on line {}",
-            directive, line_number);
-        return SystemStatus::Error;
-      }
-
-      global_vars["PROJECT_VERSION"] = tokens[1];
-    }
-
-    if (directive == "VARS") {
-      if (tokens.size() > 1) {
-        log(LogLevel::Error, "No arguments are expected on line {}",
-            line_number);
-        return SystemStatus::Error;
-      }
-
-      statuses.inside_var = true;
-    }
-
-    if (directive == "TARGET") {
-      if (tokens.size() < 2) {
-        log(LogLevel::Error, "Target name missing on line {}", line_number);
-        return SystemStatus::Error;
-      }
-
-      if (tokens.size() > 2) {
-        log(LogLevel::Error, "Too many arguments for directive {} on line {}",
-            directive, line_number);
-        return SystemStatus::Error;
-      }
-
-      statuses.inside_target = true;
-      targets.push_back(tokens[1]);
-    }
+  for (auto token : tokens) {
+    std::println("{} = {}", int(token.type), token.value);
   }
 
   return SystemStatus::Success;

@@ -20,7 +20,7 @@ struct Command {
 };
 
 struct Orchestrator {
-  Map<String, Command> commands;
+  OrderedMap<String, Command> commands;
   
   Path current_dir;
   Path proc_path;

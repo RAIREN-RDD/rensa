@@ -8,17 +8,19 @@
 </p>
 
 ## ❖ Core features
-▸ Generate projects from templates  
-▸ Support both local templates and remotely fetched templates  
-▸ Data compression at rest for storage efficiency  
-▸ Declarative project definition and build system  
-▸ Parallel execution with differential directives  
-▸ Integrated version control system  
-▸ Repository access secured via public-key authentication  
-▸ Support for multiple public-key cryptography algorithms  
-▸ Optimized for low bandwidth usage  
+▸ Generate projects from templates (🟨 partially implemented)  
+▸ Support both local templates and remotely fetched templates (🟨 partially implemented)  
+▸ Data compression at rest for storage efficiency (🟪 update expected)  
+▸ Declarative project definition and build system (🟦 ongoing development)  
+▸ Parallel execution with differential directives (🟧 coming soon)  
+▸ Integrated version control system (🟧 coming soon)  
+▸ Repository access secured via public-key authentication (🟧 coming soon)  
+▸ Support for multiple public-key cryptography algorithms (🟧 coming soon)  
+▸ Optimized for low bandwidth usage (🟧 coming soon)  
 
 ## ❖ Contributing
+Currently, the only way to contribute to this project is through cryptocurrency donations.  
+Please refer to [❖ Donations](#-donations).
 
 ## ❖ Project Development
 Requirements:  
@@ -33,6 +35,23 @@ This project is licensed under the [MIT License](/LICENSE)
 For technical inquiries, contact the maintainer: https://rairen.net/contact
 
 ## ❖ Donations
-Donations in crypto are accepted on [Polygon PoS](https://polygon.technology/polygon-pos).
+Donations support research and development across software engineering, experimental systems, and infrastructure used to design, build, and operate technical projects.
 
-See details in [docs/en/donations.md](/docs/en/donations.md).
+Funds are used at discretion to sustain ongoing development and related operational costs.
+
+**Accepted cryptocurrencies:**
+- **ETH (Ethereum mainnet)** — suggested for large donations and value signaling  
+- **USDC (Ethereum mainnet)** — suggested for large donations where stability and value preservation are preferred  
+- **USDC (Polygon PoS)** — suggested for low-fee, frequent, and small contributions  
+
+### ◆ Wallet Address
+`0x3DE4911EfB806727A8C5C3B515bD129beEF14A9c`
+
+### ◆ Token Contract Addresses
+
+**Ethereum mainnet**
+- ETH: native asset (no contract address)
+- USDC: `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` [verify](https://etherscan.io/token/0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48)
+
+**Polygon PoS**
+- USDC: `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` [verify](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359)

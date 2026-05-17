@@ -1,10 +1,8 @@
 #include "rensa/commands.hpp"
 #include "rensa/core.hpp"
 #include "rensa/log.hpp"
-#include "rensa/version.hpp"
 
 #include <filesystem>
-#include <print>
 
 #ifdef __linux__
 #include <limits.h>
@@ -34,21 +32,11 @@ Orchestrator::Orchestrator() {
   this->rensa_dir = this->current_dir / ".rensa";
   this->rensa_cache_path = this->rensa_dir / "cache";
 
-  commands.emplace(
-      "version", Command{"Prints Rensa version and commit",
-                         [this](Orchestrator *, Args) -> SystemStatus {
-                           std::println("rensa {}.{}.{} commit {}",
-                                        RENSA_VERSION_MAJOR,
-                                        RENSA_VERSION_MINOR,
-                                        RENSA_VERSION_PATCH, RENSA_COMMIT_HASH);
-                           return SystemStatus::Success;
-                         }});
-
-  commands.emplace("create",
-                   Command{"Create a Rensa project from a template", create});
-
-                   commands.emplace("build", Command{"Build project", build});
-  commands.emplace("build-cpp", Command{"Build cpp project", build_cpp});
+  commands = {
+      {"version", Command{"Prints Rensa version and commit", rensa_version}},
+      {"create",
+       Command{"Create a Rensa project from a template", rensa_create}},
+      {"build", Command{"Build project", rensa_build}}};
 }
 
 SystemStatus Orchestrator::dispatch(const Vector<String> &commands) {
