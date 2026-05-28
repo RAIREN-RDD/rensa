@@ -1,4 +1,4 @@
-TARGET rensa
+TARGET_DEFAULT rensa
 
   VARS
     CXX = /usr/bin/g++
@@ -6,9 +6,10 @@ TARGET rensa
     CXX_FLAGS = -std=c++23 -Wall -Wextra
 
     CXX_INCLUDES += -Ithird_party
-    CXX_INCLUDES += -Ithird_party
+    CXX_INCLUDES
 
     SRC_DIR = src/
   END
 
+  SET_BUILDER @rairen/rensa-cpp23
 END

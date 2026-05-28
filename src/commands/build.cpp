@@ -3,10 +3,8 @@
 #include "rensa/log.hpp"
 #include "rensa/types.hpp"
 
-#include <filesystem>
+#include <expected>
 #include <fstream>
-#include <functional>
-#include <iterator>
 #include <print>
 #include <set>
 #include <sstream>
@@ -19,27 +17,17 @@ namespace rairen::rensa {
 
 using Vars = UnorderedMap<String, std::set<String>>;
 
-#define try_assign(var, varname)                                               \
-  if (!vars.contains(varname)) {                                               \
-    rensa::log(LogLevel::Error, "Argument '{}' missing", varname);             \
-    return SystemStatus::Error;                                                \
-  }                                                                            \
-  StringView var = vars[varname]
-
-#define try_assign_opt(var, name)                                              \
-  StringView var = (vars).contains(name) ? (vars)[name] : StringView {}
-
 struct Builder {
-  Vars vars;
-
-  void init(Vars &vars) { this->vars = vars; }
-
   virtual ~Builder() = default;
-
-  virtual SystemStatus build() = 0;
+  virtual SystemStatus build(Vars &vars) = 0;
 };
 
-#undef try_assign
+struct RensaCpp23 : Builder {
+  SystemStatus build(Vars &vars) override {
+    std::println("RensaCpp23 built the target");
+    return SystemStatus::Success;
+  }
+};
 
 struct Target {
   Vars vars;
@@ -49,7 +37,8 @@ struct Target {
 using File = OrderedMap<u64, Vector<String>>;
 using Iter = File::iterator;
 
-Vars create_vars(const File &file, Iter &it) {
+/* ----- VARS PARSER ----- */
+std::expected<Vars, SystemStatus> create_vars(const File &file, Iter &it) {
   Vars vars;
 
   for (++it; it != file.end(); ++it) {
@@ -63,55 +52,59 @@ Vars create_vars(const File &file, Iter &it) {
       return vars;
     }
 
-    if (tokens.size() < 2) {
-      rensa::log(LogLevel::Error, "Invalid variable declaration on line '{}'",
-                 line_number);
-
-      continue;
-    }
-
     const String &key = tokens[0];
 
-    String value;
-
+    // var decl
     if (tokens.size() == 1) {
-      vars[key] = {};
+      vars[key];
       continue;
     }
 
-    if (tokens.size() == 2) {
-      rensa::log(LogLevel::Error, "Missing value on line '{}'", line_number);
-
-      continue;
+    // decl + op
+    if (tokens.size() < 3) {
+      rensa::log(LogLevel::Error,
+                 "Invalid variable syntax on line {} (operator requires RHS)",
+                 line_number);
+      return std::unexpected(SystemStatus::Error);
     }
 
-    String op = tokens[1];
+    const String &op = tokens[1];
 
-    if (!std::set<String>({"=", "?=", "+="}).contains(op)) {
+    if (op != "=" && op != "?=" && op != "+=") {
       rensa::log(LogLevel::Error, "Unknown operator '{}' on line {}", op,
                  line_number);
-
-      continue;
+      return std::unexpected(SystemStatus::Error);
     }
 
+    auto rhs_begin = tokens.begin() + 2;
+
     if (op == "=" || op == "?=") {
-      vars[key] = std::set<String>(tokens.begin() + 2, tokens.end());
+      vars[key] = std::set<String>(rhs_begin, tokens.end());
       continue;
     }
 
     if (op == "+=") {
-      vars[key].insert(tokens.begin() + 2, tokens.end());
+      vars[key].insert(rhs_begin, tokens.end());
       continue;
     }
   }
 
-  rensa::log(LogLevel::Error, "Unterminated VARS block");
-
-  return vars;
+  rensa::log(LogLevel::Error, "Directive 'END' missing in VARS block");
+  return std::unexpected(SystemStatus::Error);
 }
 
-Target create_target(const File &file, Iter &it) {
-  Target target;
+/* ----- TARGET PARSER ----- */
+std::expected<Target, SystemStatus> create_target(const File &file, Iter &it) {
+  Target target{};
+
+  const auto &start_tokens = it->second;
+
+  if (start_tokens.size() < 2) {
+    rensa::log(LogLevel::Error, "Target name missing on line {}", it->first);
+    return std::unexpected(SystemStatus::Error);
+  }
+
+  const String target_name = start_tokens[1];
 
   for (++it; it != file.end(); ++it) {
     auto &[line_number, tokens] = *it;
@@ -120,21 +113,63 @@ Target create_target(const File &file, Iter &it) {
       continue;
     }
 
-    if (tokens[0] == "VARS") {
-      target.vars = create_vars(file, it);
+    const String &op = tokens[0];
+
+    if (op == "VARS") {
+      auto vars_res = create_vars(file, it);
+      if (!vars_res) {
+        return std::unexpected(vars_res.error());
+      }
+      target.vars = std::move(*vars_res);
       continue;
     }
 
-    if (tokens[0] == "END") {
+    if (op == "SET_BUILDER") {
+      if (tokens.size() < 2) {
+        rensa::log(LogLevel::Error, "Builder name missing on line {}",
+                   line_number);
+        return std::unexpected(SystemStatus::Error);
+      }
+
+      const StringView builder = tokens[1];
+
+      if (builder == "@rairen/rensa-cpp23") {
+        if (target.builder) {
+          delete target.builder;
+        }
+        target.builder = new RensaCpp23();
+        continue;
+      }
+
+      rensa::log(LogLevel::Error, "Unknown builder '{}' on line {}", builder,
+                 line_number);
+
+      return std::unexpected(SystemStatus::Error);
+    }
+
+    if (op == "END") {
+      if (!target.builder) {
+        rensa::log(LogLevel::Error, "Builder not set for target '{}'",
+                   target_name);
+        return std::unexpected(SystemStatus::Error);
+      }
+
       return target;
     }
+
+    rensa::log(LogLevel::Error, "Unknown directive '{}' on line {}", op,
+               line_number);
+
+    return std::unexpected(SystemStatus::Error);
   }
 
-  rensa::log(LogLevel::Error, "Unterminated TARGET block");
+  rensa::log(LogLevel::Error, "Unterminated TARGET block for '{}'",
+             target_name);
 
-  return target;
+  return std::unexpected(SystemStatus::Error);
 }
 
+/* ----- COMMAND BUILD ----- */
 RENSA_COMMAND(build) {
   UnorderedMap<String, Target> targets;
 
@@ -156,19 +191,15 @@ RENSA_COMMAND(build) {
   while (std::getline(file_in, line)) {
     ++line_number;
 
-    if (line.empty()) {
+    if (line.empty())
       continue;
-    }
 
     std::stringstream ss(line);
-
     Vector<String> tokens;
 
     while (ss >> token) {
-      if (token == "#") {
+      if (token == "#")
         break;
-      }
-
       tokens.push_back(token);
     }
 
@@ -180,52 +211,58 @@ RENSA_COMMAND(build) {
   for (auto it = file.begin(); it != file.end(); ++it) {
     const auto &[line_index, tokens] = *it;
 
-    if (tokens.empty()) {
+    if (tokens.empty())
       continue;
-    }
 
-    if (tokens[0] == "TARGET") {
+    if (tokens[0] == "TARGET" || tokens[0] == "TARGET_DEFAULT") {
 
-      if (tokens.size() < 2) {
-        rensa::log(LogLevel::Error, "Target name missing on line '{}'",
+      if (tokens.size() != 2) {
+        rensa::log(LogLevel::Error, "Invalid target declaration on line '{}'",
                    line_index);
-
-        return SystemStatus::Error;
-      }
-
-      if (tokens.size() > 2) {
-        rensa::log(LogLevel::Error, "Expected only target name on line '{}'",
-                   line_index);
-
         return SystemStatus::Error;
       }
 
       const String &name = tokens[1];
 
+      if (tokens[0] == "TARGET_DEFAULT")
+        target_name = name;
+
       if (targets.contains(name)) {
         rensa::log(LogLevel::Error, "Duplicate target '{}' on line '{}'", name,
                    line_index);
-
         return SystemStatus::Error;
       }
 
-      targets[name] = create_target(file, it);
-      std::println("Target {} created", name);
+      auto res = create_target(file, it);
+      if (!res) {
+        return res.error();
+      }
 
+      targets[name] = std::move(*res);
       continue;
     }
 
     if (tokens[0] == "END") {
       rensa::log(LogLevel::Error, "Unexpected END directive on line '{}'",
                  line_index);
-
       return SystemStatus::Error;
     }
   }
 
-  std::println("{}", targets["rensa"].vars);
+  if (!targets.contains(target_name)) {
+    rensa::log(LogLevel::Error, "Target '{}' not found", target_name);
+    return SystemStatus::Error;
+  }
 
-  return SystemStatus::Success;
+  Target &target = targets.at(target_name);
+  SystemStatus out = target.builder->build(target.vars);
+
+  for (auto &[_, t] : targets) {
+    delete t.builder;
+    t.builder = nullptr;
+  }
+
+  return out;
 }
 
 } // namespace rairen::rensa
