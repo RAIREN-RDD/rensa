@@ -1,14 +1,14 @@
-TARGET_DEFAULT rensa
+TARGET_DEFAULT entry
 
   VARS
     CXX = /usr/bin/g++
-    CXX_INCLUDES = -Iinclude
-    CXX_FLAGS = -std=c++23 -Wall -Wextra
+    CXX_INCLUDES = include third_party/yaml-cpp/include third_party/xz/src/liblzma/api third_party/libarchive/libarchive
+    CXX_FLAGS = -std=c++23 -Wall -Wextra   
+    CXX_LD_FLAGS = libs/libyaml-cpp.a libs/liblzma.a libs/libarchive.a -lcrypto -lssl
 
-    CXX_INCLUDES += -Ithird_party
-    CXX_INCLUDES
+    SRC_DIRS = src
+    BUILD_DIR = build
 
-    SRC_DIR = src/
   END
 
   SET_BUILDER @rairen/rensa-cpp23

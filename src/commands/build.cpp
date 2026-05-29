@@ -1,33 +1,14 @@
+#include "rensa/builders.hpp"
 #include "rensa/commands.hpp"
-#include "rensa/core.hpp"
 #include "rensa/log.hpp"
-#include "rensa/types.hpp"
 
 #include <expected>
 #include <fstream>
-#include <print>
-#include <set>
-#include <sstream>
-#include <string>
-#include <unordered_set>
 
+#include <print>
 #include <yaml-cpp/yaml.h>
 
 namespace rairen::rensa {
-
-using Vars = UnorderedMap<String, std::set<String>>;
-
-struct Builder {
-  virtual ~Builder() = default;
-  virtual SystemStatus build(Vars &vars) = 0;
-};
-
-struct RensaCpp23 : Builder {
-  SystemStatus build(Vars &vars) override {
-    std::println("RensaCpp23 built the target");
-    return SystemStatus::Success;
-  }
-};
 
 struct Target {
   Vars vars;
@@ -78,13 +59,16 @@ std::expected<Vars, SystemStatus> create_vars(const File &file, Iter &it) {
 
     auto rhs_begin = tokens.begin() + 2;
 
+    // = const, ?= overwrite
     if (op == "=" || op == "?=") {
-      vars[key] = std::set<String>(rhs_begin, tokens.end());
+      vars[key] = Vector<String>(rhs_begin, tokens.end());
       continue;
     }
 
+    // += append
     if (op == "+=") {
-      vars[key].insert(rhs_begin, tokens.end());
+      auto &vec = vars[key];
+      vec.insert(vec.end(), rhs_begin, tokens.end());
       continue;
     }
   }
@@ -121,6 +105,7 @@ std::expected<Target, SystemStatus> create_target(const File &file, Iter &it) {
         return std::unexpected(vars_res.error());
       }
       target.vars = std::move(*vars_res);
+      target.vars["TARGET_NAME"] = {target_name};
       continue;
     }
 
