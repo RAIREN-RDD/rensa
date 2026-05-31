@@ -7,6 +7,10 @@
   <a href="/resources/docs/zh-Hans/README.zh-Hans.md">🇨🇳 <strong>中文（简体）</strong></a>
 </p>
 
+<p align="center">
+  <img src="resources/logo.png" width="300">
+</p>
+
 ## ❖ Core features
 ▸ Generate projects from templates (🟨 partially implemented)  
 ▸ Support both local templates and remotely fetched templates (🟨 partially implemented)  
@@ -40,9 +44,9 @@ Donations support research and development across software engineering, experime
 Funds are used at discretion to sustain ongoing development and related operational costs.
 
 **Accepted cryptocurrencies:**
-- **ETH (Ethereum mainnet)** — suggested for large donations and value signaling  
-- **USDC (Ethereum mainnet)** — suggested for large donations where stability and value preservation are preferred  
-- **USDC (Polygon PoS)** — suggested for low-fee, frequent, and small contributions  
+- **ETH (Ethereum mainnet)** ー suggested for large donations and value signaling  
+- **USDC (Ethereum mainnet)** ー suggested for large donations where stability and value preservation are preferred  
+- **USDC (Polygon PoS)** ー suggested for low-fee, frequent, and small contributions  
 
 ### ◆ Wallet Address
 `0x3DE4911EfB806727A8C5C3B515bD129beEF14A9c`

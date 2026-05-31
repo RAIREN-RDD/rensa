@@ -5,7 +5,6 @@ libs/
 # Editor
 .clangd
 
-# Hidden files
 *.tmp
 
 donations.md
