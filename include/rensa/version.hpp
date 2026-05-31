@@ -14,3 +14,4 @@ constexpr const char *RENSA_COMMIT_HASH = "defined by VCS";
 } // namespace rairen::rensa
 
 #endif
+
