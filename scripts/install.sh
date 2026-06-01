@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+bash scripts/build.sh
+
 mkdir -p ~/.apps/rairen/rensa/templates/
 
 cd resources/templates
