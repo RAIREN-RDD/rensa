@@ -24,7 +24,12 @@
 
 
 apt update
-apt install git
+apt install software-properties-common
+add-apt-repository ppa:ubuntu-toolchain-r/test
+apt update
+apt install git cmake g++-13 ccache
+export CC=gcc-13
+export CXX=g++-13
 git clone https://github.com/RAIREN-RDD/rensa.git
 cd rensa
 bash scripts/build.sh
