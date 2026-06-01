@@ -22,6 +22,14 @@
 ▸ Support for multiple public-key cryptography algorithms (🟧 coming soon)  
 ▸ Optimized for low bandwidth usage (🟧 coming soon)  
 
+
+apt update
+apt install git
+git clone https://github.com/RAIREN-RDD/rensa.git
+cd rensa
+bash scripts/build.sh
+
+
 ## ❖ Contributing
 Currently, the only way to contribute to this project is through cryptocurrency donations.  
 Please refer to [❖ Donations](#-donations).
