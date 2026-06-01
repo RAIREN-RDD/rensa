@@ -13,7 +13,7 @@ struct Builder {
   virtual SystemStatus build(Vars &vars) = 0;
 };
 
-struct RensaCpp23 : Builder {
+struct RensaCpp : Builder {
   SystemStatus build(Vars &vars) override;
 };
 

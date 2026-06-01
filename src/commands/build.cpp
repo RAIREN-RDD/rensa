@@ -118,11 +118,11 @@ std::expected<Target, SystemStatus> create_target(const File &file, Iter &it) {
 
       const StringView builder = tokens[1];
 
-      if (builder == "@rairen/rensa-cpp23") {
+      if (builder == "@rairen/rensa-cpp") {
         if (target.builder) {
           delete target.builder;
         }
-        target.builder = new RensaCpp23();
+        target.builder = new RensaCpp();
         continue;
       }
 

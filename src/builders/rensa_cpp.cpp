@@ -55,7 +55,7 @@ SystemStatus link_objs(String c, Vector<Path> s, String t, Vector<String> f) {
 
 #endif
 
-SystemStatus RensaCpp23::build(Vars &vars) {
+SystemStatus RensaCpp::build(Vars &vars) {
   TRY_ASSIGN(target, "TARGET_NAME");
   TRY_ASSIGN(cxx, "CXX");
   TRY_ASSIGN(flags, "CXX_FLAGS");

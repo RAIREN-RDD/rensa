@@ -11,5 +11,5 @@ TARGET_DEFAULT entry
 
   END
 
-  SET_BUILDER @rairen/rensa-cpp23
+  SET_BUILDER @rairen/rensa-cpp
 END
