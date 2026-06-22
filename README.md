@@ -28,7 +28,7 @@
 ## ❖ Contributing
 This project is currently maintained in a solo-maintenance phase and is not accepting pull requests.
 
-The author is open to commissioned work in custom software development (CLI and GUI applications, web systems, dashboards, APIs, and backend services). Requests can be made via the author’s website.
+The author is open to commissioned work in custom software development (CLI and GUI applications, web systems, dashboards, APIs, and backend services). Requests can be made via the author’s website on https://rairen.net/services
 
 Commissioned work helps support continued development of Rensa.
 
