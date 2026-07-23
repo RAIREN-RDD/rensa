@@ -1,13 +1,5 @@
 # Rensa / 連鎖 — Deterministic Project Orchestration
 <p align="center">
-  <a href="/README.md">🇺🇸 <strong>English</strong></a> |
-  <a href="/resources/docs/it/README.it.md">🇮🇹 <strong>Italiano</strong></a> |
-  <a href="/resources/docs/ro/README.ro.md">🇷🇴 <strong>Română</strong></a> |
-  <a href="/resources/docs/ja/README.ja.md">🇯🇵 <strong>日本語</strong></a> |
-  <a href="/resources/docs/zh-Hans/README.zh-Hans.md">🇨🇳 <strong>中文（简体）</strong></a>
-</p>
-
-<p align="center">
   <img src="resources/logo.png" width="300">
 </p>
 
@@ -26,11 +18,13 @@
 | Optimized for low bandwidth usage | ❌ Not yet implemented |
 
 ## ❖ Contributing
-This project is currently maintained in a solo-maintenance phase and is not accepting pull requests.
+This project is currently maintained by a solo developer and is not accepting pull requests.
 
-The author is open to commissioned work in custom software development (CLI and GUI applications, web systems, dashboards, APIs, and backend services). Requests can be made via the author’s website on https://rairen.net/services
+The author is available for commissioned custom software development, currently focused on CLI applications.
 
-Commissioned work helps support continued development of Rensa.
+Requests can be made through the author’s website: https://rairen.net/services
+
+Commissioned work helps support the continued development of Rensa.
 
 ## ❖ Project Development
 Requirements:  
